@@ -19,6 +19,7 @@ function App() {
     }
   }, [VITE_APP_NAME])
 
+  console.log("hello")
   return (
     <AnimatePresence>
       <div className="app-container">
