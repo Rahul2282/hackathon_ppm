@@ -4,7 +4,7 @@ import { parseEther } from "viem";
 import { motion, AnimatePresence } from "framer-motion";
 import abi from "../../abi.json";
 
-const CONTRACT_ADDRESS = "0x0AE8919C1403A1b681E4C4588885957Aa044Fa4A";
+const CONTRACT_ADDRESS = "0x241a40c355641Fec8e8b11E5197c9a3C90896132";
 
 export default function CreateMarketModal({ 
   showModal, 

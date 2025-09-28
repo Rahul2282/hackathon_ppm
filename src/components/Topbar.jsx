@@ -1,6 +1,7 @@
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Wallet } from './WalletConnect'
+import logo from '../assets/logo.jpg'
 
 export default function Topbar() {
   const location = useLocation()
@@ -14,15 +15,15 @@ export default function Topbar() {
     >
       <div className="header-content">
         <motion.div 
-          className="header-left"
+          // className="header-left"
           whileHover={{ scale: 1.02 }}
+          style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
         >
+          <img src={logo} style={{ width: '50px', height: '50px' }} alt="Lucida" className="app-logo" />
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <motion.h1 className="app-title">PPM</motion.h1>
+            <motion.h1 className="app-title" style={{ fontFamily: 'Montserrat' }}>Lucida</motion.h1>
           </Link>
-          <motion.p className="app-subtitle">
-            Permissionless Prediction Market
-          </motion.p>
+          
         </motion.div>
 
         <nav className="header-right" aria-label="Main Navigation">

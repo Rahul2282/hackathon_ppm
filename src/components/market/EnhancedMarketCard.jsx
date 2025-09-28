@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAccount, useWriteContract, useReadContract } from "wagmi";
 import { parseEther, formatEther } from "viem";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import abi from "../../abi.json";
 
-const CONTRACT_ADDRESS = "0x0AE8919C1403A1b681E4C4588885957Aa044Fa4A";
+const CONTRACT_ADDRESS = "0x241a40c355641Fec8e8b11E5197c9a3C90896132";
 
 // Quick bet presets
 const QUICK_BET_AMOUNTS = ["0.01", "0.05", "0.1", "0.5"];
 
-export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatusUpdate }) {
+export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatusUpdate, onRegisterRefresh }) {
   const { writeContractAsync } = useWriteContract();
   const { address, isConnected } = useAccount();
   const [amount, setAmount] = useState("");
@@ -82,7 +82,7 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
         };
         setMarketData(processedMarket);
         
-        // Notify parent component of status change
+        // Always notify parent component of status when data loads
         if (onStatusUpdate && status !== undefined) {
           onStatusUpdate(Number(status));
         }
@@ -143,6 +143,20 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
       setIsLoading(false);
     }
   }, [refetch, refetchYesStake, refetchNoStake, showNotification]);
+
+  // Register refresh callback with parent component
+  useEffect(() => {
+    if (onRegisterRefresh) {
+      onRegisterRefresh(refreshCard);
+    }
+    
+    // Cleanup function to unregister callback
+    return () => {
+      if (onRegisterRefresh) {
+        onRegisterRefresh(null);
+      }
+    };
+  }, [onRegisterRefresh, refreshCard]);
 
   const placeBet = useCallback(
     async (isYes) => {
@@ -324,7 +338,20 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
   const isActive = market.status === 0;
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
+        duration: 0.4,
+        ease: [0.25, 0.46, 0.45, 0.94],
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      }}
+      whileHover={{
+        y: -4,
+        transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }
+      }}
       style={{
         border: isActive 
           ? "2px solid rgba(76, 175, 80, 0.3)" 
@@ -341,14 +368,22 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
         display: "flex",
         flexDirection: "column",
         boxShadow: isActive 
-          ? "0 8px 32px rgba(76, 175, 80, 0.2)" 
-          : "0 4px 16px rgba(0, 0, 0, 0.1)",
+          ? "0 3px 12px rgba(76, 175, 80, 0.12)" 
+          : "0 2px 8px rgba(0, 0, 0, 0.06)",
+        cursor: "pointer",
       }}
     >
       {/* Notification */}
       <AnimatePresence>
         {notification && (
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+            transition={{
+              duration: 0.3,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
             style={{
               position: "absolute",
               top: 10,
@@ -366,10 +401,12 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
                   ? "rgba(76, 175, 80, 0.9)"
                   : "rgba(102, 126, 234, 0.9)",
               color: "white",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.08)",
             }}
           >
             {notification.message}
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -403,7 +440,7 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
                   fontWeight: 700,
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
-                  boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)",
+                  boxShadow: "0 1px 4px rgba(76, 175, 80, 0.15)",
                 }}
               >
                 🔥 Live
@@ -585,7 +622,7 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
                 : "linear-gradient(90deg, #4caf50, #66bb6a)",
               borderRadius: 4,
               transition: "width 0.3s ease",
-              boxShadow: isActive ? "0 0 8px rgba(76, 175, 80, 0.3)" : "none",
+              boxShadow: isActive ? "0 0 4px rgba(76, 175, 80, 0.15)" : "none",
             }}
           />
         </div>
@@ -664,16 +701,40 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
 
       {/* Betting Section */}
       {market.status === 0 && (
-        <div style={{ marginBottom: 16, flexShrink: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 12 }}>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          style={{ marginBottom: 16, flexShrink: 0 }}
+        >
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+            style={{ fontSize: 14, fontWeight: 500, marginBottom: 12 }}
+          >
             Place Your Bet
-          </div>
+          </motion.div>
 
           {/* Quick Amount Buttons */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            {QUICK_BET_AMOUNTS.map((quickAmount) => (
-              <button
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.4 }}
+            style={{ display: "flex", gap: 8, marginBottom: 12 }}
+          >
+            {QUICK_BET_AMOUNTS.map((quickAmount, index) => (
+              <motion.button
                 key={quickAmount}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ 
+                  duration: 0.2, 
+                  delay: 0.5 + (index * 0.05),
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setAmount(quickAmount)}
                 style={{
                   padding: "6px 12px",
@@ -695,11 +756,14 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
                 }}
               >
                 {quickAmount} ETH
-              </button>
+              </motion.button>
             ))}
-          </div>
+          </motion.div>
 
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.6 }}
             style={{
               display: "grid",
               gridTemplateColumns: "1fr auto auto",
@@ -707,11 +771,13 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
               alignItems: "center",
             }}
           >
-            <input
+            <motion.input
               type="text"
               placeholder="Amount in ETH"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              whileFocus={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
               style={{
                 height: 40,
                 borderRadius: 8,
@@ -720,11 +786,15 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
                 padding: "0 12px",
                 fontSize: 14,
                 color: "var(--text-primary)",
+                outline: "none",
               }}
             />
-            <button
+            <motion.button
               onClick={() => placeBet(true)}
               disabled={isLoading || !amount}
+              whileHover={{ scale: isLoading || !amount ? 1 : 1.05 }}
+              whileTap={{ scale: isLoading || !amount ? 1 : 0.95 }}
+              transition={{ duration: 0.2 }}
               style={{
                 height: 40,
                 borderRadius: 8,
@@ -743,22 +813,15 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
                 alignItems: "center",
                 justifyContent: "center",
               }}
-              onMouseEnter={(e) => {
-                if (!e.target.disabled) {
-                  e.target.style.background = "rgba(76, 175, 80, 0.2)";
-                  e.target.style.borderColor = "rgba(76, 175, 80, 0.5)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = "rgba(76, 175, 80, 0.1)";
-                e.target.style.borderColor = "rgba(76, 175, 80, 0.3)";
-              }}
             >
               Bet Yes
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={() => placeBet(false)}
               disabled={isLoading || !amount}
+              whileHover={{ scale: isLoading || !amount ? 1 : 1.05 }}
+              whileTap={{ scale: isLoading || !amount ? 1 : 0.95 }}
+              transition={{ duration: 0.2 }}
               style={{
                 height: 40,
                 borderRadius: 8,
@@ -777,21 +840,11 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
                 alignItems: "center",
                 justifyContent: "center",
               }}
-              onMouseEnter={(e) => {
-                if (!e.target.disabled) {
-                  e.target.style.background = "rgba(244, 67, 54, 0.2)";
-                  e.target.style.borderColor = "rgba(244, 67, 54, 0.5)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = "rgba(244, 67, 54, 0.1)";
-                e.target.style.borderColor = "rgba(244, 67, 54, 0.3)";
-              }}
             >
               Bet No
-            </button>
-          </div>
-        </div>
+            </motion.button>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* Spacer to push action buttons to bottom */}
@@ -876,7 +929,11 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
       {/* Confirmation Modal */}
       <AnimatePresence>
         {showConfirm && (
-          <div
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             style={{
               position: "absolute",
               top: 0,
@@ -889,9 +946,20 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
               alignItems: "center",
               justifyContent: "center",
               zIndex: 20,
+              backdropFilter: "blur(8px)",
             }}
           >
-            <div
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 20 }}
+              transition={{ 
+                duration: 0.3, 
+                ease: [0.25, 0.46, 0.45, 0.94],
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+              }}
               style={{
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.2)",
@@ -900,16 +968,37 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
                 textAlign: "center",
                 backdropFilter: "blur(10px)",
                 maxWidth: 280,
+                boxShadow: "0 3px 12px rgba(0, 0, 0, 0.15)",
               }}
             >
-              <div style={{ fontSize: 24, marginBottom: 12 }}>⚠️</div>
-              <div style={{ marginBottom: 16, fontSize: 14 }}>
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.1, duration: 0.3, type: "spring" }}
+                style={{ fontSize: 24, marginBottom: 12 }}
+              >
+                ⚠️
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                style={{ marginBottom: 16, fontSize: 14 }}
+              >
                 Are you sure you want to close this market? This action cannot
                 be undone.
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                style={{ display: "flex", gap: 8 }}
+              >
+                <motion.button
                   onClick={() => setShowConfirm(null)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                   style={{
                     flex: 1,
                     height: 36,
@@ -922,10 +1011,13 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
                   }}
                 >
                   Cancel
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   onClick={closeMarket}
                   disabled={isLoading}
+                  whileHover={{ scale: isLoading ? 1 : 1.05 }}
+                  whileTap={{ scale: isLoading ? 1 : 0.95 }}
+                  transition={{ duration: 0.2 }}
                   style={{
                     flex: 1,
                     height: 36,
@@ -940,42 +1032,57 @@ export default function EnhancedMarketCard({ id, onNavigateToChallenge, onStatus
                   }}
                 >
                   {isLoading ? "Closing..." : "Close"}
-                </button>
-              </div>
-            </div>
-          </div>
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
       {/* Loading Overlay */}
-      {isLoading && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.3)",
-            borderRadius: 16,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 10,
-          }}
-        >
-          <div
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             style={{
-              width: 24,
-              height: 24,
-              border: "3px solid rgba(255,255,255,0.3)",
-              borderTop: "3px solid white",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0,0,0,0.3)",
+              borderRadius: 16,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 10,
+              backdropFilter: "blur(4px)",
             }}
-          />
-        </div>
-      )}
-    </div>
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ 
+                duration: 0.3, 
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+              }}
+              style={{
+                width: 24,
+                height: 24,
+                border: "3px solid rgba(255,255,255,0.3)",
+                borderTop: "3px solid white",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

@@ -55,7 +55,7 @@ const provider = new ethers.JsonRpcProvider(
 );
 
 // 📍 Contract details
-const contractAddress = "0x6fF38e89659866B0BeCcE6a558644a9937BC3C26";
+const contractAddress = "0x241a40c355641Fec8e8b11E5197c9a3C90896132";
 
 const signer = new ethers.Wallet("0x686bab5a1347fa6cc0167c083e41fac0cf31f62c46a7792877195cf724cc5253", provider);
 const contract = new ethers.Contract(contractAddress, abi, signer);

@@ -5,7 +5,8 @@ import ChallengePage from "./ChallengePage.jsx";
 import MarketTabs from "./market/MarketTabs";
 import CreateMarketModal from "./market/CreateMarketModal";
 
-const CONTRACT_ADDRESS = "0x0AE8919C1403A1b681E4C4588885957Aa044Fa4A";
+// const CONTRACT_ADDRESS = "0x0AE8919C1403A1b681E4C4588885957Aa044Fa4A";
+const CONTRACT_ADDRESS = "0x241a40c355641Fec8e8b11E5197c9a3C90896132";
 
 export default function MarketManager() {
   const [currentPage, setCurrentPage] = useState("markets");
@@ -23,6 +24,7 @@ export default function MarketManager() {
     if (nextMarketId.data) {
       setNextId(Number(nextMarketId.data));
     }
+    console.log("nextMarketId---->",nextMarketId.data)
   }, [nextMarketId.data]);
 
   function navigateToChallenge(marketId) {

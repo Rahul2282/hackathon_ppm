@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import MarketsLink from './MarketsLink.jsx'
 // import { motion } from 'framer-motion'
+import logo from '../assets/logo.jpg'
 
 export default function Footer() {
   return (
@@ -9,9 +10,9 @@ export default function Footer() {
         {/* Main Content */}
         <div className="footer-main">
           <div className="footer-brand">
-            <div className="footer-logo">PPM</div>
+            <img src={logo} style={{ width: '50px', height: '50px' }}  alt="Lucida" />
             <div className="footer-brand-text">
-              <span className="footer-title">Prediction Markets</span>
+              <span className="footer-title">Lucida</span>
               <span className="footer-subtitle">Web3 • Decentralized • Transparent</span>
             </div>
           </div>
