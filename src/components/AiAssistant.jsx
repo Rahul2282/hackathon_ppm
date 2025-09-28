@@ -161,7 +161,7 @@ const AIAssistant = ({ walletAddress }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://ai-code-hackathon.onrender.com/api/ai-agent/general', {
+      const response = await fetch('https://finalaaa.onrender.com/api/ai-agent/general', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
